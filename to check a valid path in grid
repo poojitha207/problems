@@ -1,0 +1,37 @@
+from typing import List
+from collections import deque
+
+class Solution:
+    def hasValidPath(self, grid: List[List[int]]) -> bool:
+        m = len(grid)
+        n = len(grid[0])
+
+        paths = {
+            1: [(0, -1), (0, 1)],
+            2: [(-1, 0), (1, 0)],
+            3: [(0, -1), (1, 0)],
+            4: [(0, 1), (1, 0)],
+            5: [(0, -1), (-1, 0)],
+            6: [(0, 1), (-1, 0)]
+        }
+
+        queue = deque([(0, 0)])
+        visited = set()
+        visited.add((0, 0))
+
+        while queue:
+            x, y = queue.popleft()
+
+            if x == m - 1 and y == n - 1:
+                return True
+
+            for dx, dy in paths[grid[x][y]]:
+                nx = x + dx
+                ny = y + dy
+
+                if 0 <= nx < m and 0 <= ny < n and (nx, ny) not in visited:
+                    if (-dx, -dy) in paths[grid[nx][ny]]:
+                        visited.add((nx, ny))
+                        queue.append((nx, ny))
+
+        return False
