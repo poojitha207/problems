@@ -1,0 +1,42 @@
+class LFUCache:
+
+    def __init__(self, capacity: int):
+      minfrequency=0
+      self.capacity=capacity
+      self.key_to_value={}
+      self.key_to_frequency={}
+      self.frequency_to_key=defaultdict(OrderedDict)
+    def update(self,key):
+        frequency=self.key_to_frequency[key]
+        del self.frequency_to_key[frequency][key]
+        if not self.frequency_to_key[frequency]:
+            del self.frequency_to_key[frequency]
+            if self.minfrequency==frequency:
+                self.minfrequency+=1
+        self.key_to_frequency[key]=frequency+1
+        self.frequency_to_key[frequency+1][key]=None
+
+
+    def get(self, key: int) -> int:
+        if key not in self.key_to_value:
+            return -1
+        self.update(key)
+        return self.key_to_value[key]
+
+
+    def put(self, key: int, value: int) -> None:
+        if self.capacity==0:
+         return 
+        if key in self.key_to_value:
+            self.key_to_value[key]=value
+            self.update(key)
+            return
+        if len(self.key_to_value)>=self.capacity:
+            lfu,_=self.frequency_to_key[self.minfrequency].popitem(last=False)
+            del self.key_to_value[lfu]
+            del self.key_to_frequency[lfu]
+        self.key_to_value[key]=value
+        self.key_to_frequency[key]=1
+        self.minfrequency=1
+        self.frequency_to_key[1][key]=None
+        return
